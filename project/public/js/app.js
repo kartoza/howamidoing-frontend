@@ -203,11 +203,12 @@ async function map() {
     var gridUrl = "https://howamidoing.backend.kartoza.com/v2/api/grid-score-tiles/?tile={z}/{x}/{y}";
     var gridOptions = {
         vectorTileLayerStyles: {
-	    // assuming sliced is the layer name
+	    // assuming default is the layer name
             default: function(properties) {
                 var score = parseFloat(properties.total_score);
+                var totalReport = parseInt(properties.total_report);
                 var color = "green";
-                var fillOpacity = 0.3;
+                var fillOpacity = totalReport > 0 ? 0.5 : 0;
 
                 switch (score) {
                     case 1.00:
@@ -261,6 +262,13 @@ async function map() {
     var overlayMaps = {
         "Grids": gridLayer
     };
+
+    reportMap.on("movestart", function () {
+        reportMap.removeLayer(gridLayer);
+    })
+    reportMap.on("moveend", function () {
+        reportMap.addLayer(gridLayer);
+    })
 
     // Add to layer control, then add to Map
     L.control.layers(baseMaps, overlayMaps).addTo(reportMap);
